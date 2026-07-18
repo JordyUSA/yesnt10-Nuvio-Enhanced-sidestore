@@ -32,45 +32,60 @@ jobs:
           VERSION=$(echo "$DATA" | jq -r '.tag_name' | sed 's/v//')
           DATE=$(echo "$DATA" | jq -r '.published_at' | cut -d'T' -f1)
           URL=$(echo "$DATA" | jq -r '.assets[] | select(.name | endswith(".ipa")) | .browser_download_url' | head -n 1)
-          SIZE=$(curl -sIL "$URL" | grep -i content-length | tail -1 | tr -d '\r' | awk '{print $2}')
 
           if [ -z "$URL" ] || [ "$URL" == "null" ]; then
             echo "No IPA file found in the latest release. Skipping update."
             exit 0
           fi
 
-          cat << EOF > apps.json
-          {
-            "name": "Nuvio Enhanced Repo",
-            "subtitle": "Auto-Updated Source",
-            "description": "Automatically tracked source for NuvioMobile-Enhanced.",
-            "iconURL": "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/composeApp/src/commonMain/composeResources/drawable/ic_launcher.png",
-            "website": "https://github.com/yesnt10/NuvioMobile-Enhanced",
-            "apps": [
-              {
-                "name": "Nuvio Enhanced",
-                "bundleIdentifier": "com.nuvio.enhanced",
-                "developerName": "yesnt10",
-                "subtitle": "Polished media browsing",
-                "localizedDescription": "A community-maintained build of NuvioMobile with focus on premium UX edits.",
-                "iconURL": "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/composeApp/src/commonMain/composeResources/drawable/ic_launcher.png",
-                "tintColor": "#007AFF",
-                "category": "entertainment",
-                "version": "$VERSION",
-                "downloadURL": "$URL",
-                "versions": [
-                  {
-                    "version": "$VERSION",
-                    "date": "$DATE",
-                    "downloadURL": "$URL",
-                    "size": ${SIZE:-0},
-                    "localizedDescription": "Automatically updated to version $VERSION"
-                  }
-                ]
-              }
-            ]
-          }
-          EOF
+          SIZE=$(curl -sIL "$URL" | grep -i '^content-length:' | tail -1 | tr -d '\r' | awk '{print $2}')
+          SIZE=${SIZE:-0}
+
+          # Release title + body, straight from the GitHub release page.
+          RELEASE_TITLE=$(echo "$DATA" | jq -r '.name // .tag_name')
+          RELEASE_BODY=$(echo "$DATA" | jq -r '.body // ""')
+          DESCRIPTION=$(printf '%s\n\n%s' "$RELEASE_TITLE" "$RELEASE_BODY")
+
+          # Build the JSON with jq itself (not a raw heredoc). Release titles
+          # and bodies can contain quotes, backticks, newlines, emoji, etc. —
+          # jq's --arg escapes all of that safely so apps.json stays valid
+          # JSON no matter what the upstream release notes contain.
+          jq -n \
+            --arg version "$VERSION" \
+            --arg date "$DATE" \
+            --arg url "$URL" \
+            --argjson size "$SIZE" \
+            --arg desc "$DESCRIPTION" \
+            '{
+              name: "Nuvio Enhanced Repo",
+              subtitle: "Auto-Updated Source",
+              description: "Automatically tracked source for NuvioMobile-Enhanced.",
+              iconURL: "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+              website: "https://github.com/yesnt10/NuvioMobile-Enhanced",
+              apps: [
+                {
+                  name: "Nuvio Enhanced",
+                  bundleIdentifier: "com.nuvio.enhanced",
+                  developerName: "yesnt10",
+                  subtitle: "Polished media browsing",
+                  localizedDescription: "A community-maintained build of NuvioMobile with focus on premium UX edits.",
+                  iconURL: "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/iosApp/iosApp/Assets.xcassets/AppIcon.appiconset/app-icon-1024.png",
+                  tintColor: "#007AFF",
+                  category: "entertainment",
+                  version: $version,
+                  downloadURL: $url,
+                  versions: [
+                    {
+                      version: $version,
+                      date: $date,
+                      downloadURL: $url,
+                      size: $size,
+                      localizedDescription: $desc
+                    }
+                  ]
+                }
+              ]
+            }' > apps.json
 
       - name: Commit changes and push back to repo
         run: |
