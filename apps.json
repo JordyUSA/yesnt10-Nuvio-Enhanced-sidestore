@@ -1,0 +1,30 @@
+{
+  "name": "Nuvio Enhanced Repo",
+  "subtitle": "Auto-Updated Source",
+  "description": "Automatically tracked source for NuvioMobile-Enhanced.",
+  "iconURL": "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/composeApp/src/commonMain/composeResources/drawable/ic_launcher.png",
+  "website": "https://github.com/yesnt10/NuvioMobile-Enhanced",
+  "apps": [
+    {
+      "name": "Nuvio Enhanced",
+      "bundleIdentifier": "com.nuvio.enhanced",
+      "developerName": "yesnt10",
+      "subtitle": "Polished media browsing",
+      "localizedDescription": "A community-maintained build of NuvioMobile with focus on premium UX edits.",
+      "iconURL": "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/composeApp/src/commonMain/composeResources/drawable/ic_launcher.png",
+      "tintColor": "#007AFF",
+      "category": "entertainment",
+      "version": "enhanced-0.2.23-build98",
+      "downloadURL": "https://github.com/yesnt10/NuvioMobile-Enhanced/releases/download/enhanced-v0.2.23-build98/Nuvio-Enhanced-v0.2.23-build98-unsigned.ipa",
+      "versions": [
+        {
+          "version": "enhanced-0.2.23-build98",
+          "date": "2026-07-14",
+          "downloadURL": "https://github.com/yesnt10/NuvioMobile-Enhanced/releases/download/enhanced-v0.2.23-build98/Nuvio-Enhanced-v0.2.23-build98-unsigned.ipa",
+          "size": 45948513,
+          "localizedDescription": "Automatically updated to version enhanced-0.2.23-build98"
+        }
+      ]
+    }
+  ]
+}
