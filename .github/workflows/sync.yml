@@ -1,0 +1,68 @@
+name: Auto Update SideStore Source
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs automatically every day at midnight UTC
+  workflow_dispatch: # Lets you trigger an update manually
+
+permissions:
+  contents: write
+
+jobs:
+  update-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Fetch Latest Release Data
+        run: |
+          DATA=$(curl -s https://api.github.com/repos/yesnt10/NuvioMobile-Enhanced/releases/latest)
+          VERSION=$(echo "$DATA" | jq -r '.tag_name' | sed 's/v//')
+          DATE=$(echo "$DATA" | jq -r '.published_at' | cut -d'T' -f1)
+          URL=$(echo "$DATA" | jq -r '.assets[] | select(.name | endswith(".ipa")) | .browser_download_url' | head -n 1)
+          SIZE=$(curl -sIL "$URL" | grep -i content-length | tail -1 | tr -d '\r' | awk '{print $2}')
+
+          if [ -z "$URL" ] || [ "$URL" == "null" ]; then
+            echo "No IPA file found in the latest release. Skipping update."
+            exit 0
+          fi
+
+          cat << EOF > apps.json
+          {
+            "name": "Nuvio Enhanced Repo",
+            "subtitle": "Auto-Updated Source",
+            "description": "Automatically tracked source for NuvioMobile-Enhanced.",
+            "iconURL": "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/composeApp/src/commonMain/composeResources/drawable/ic_launcher.png",
+            "website": "https://github.com/yesnt10/NuvioMobile-Enhanced",
+            "apps": [
+              {
+                "name": "Nuvio Enhanced",
+                "bundleIdentifier": "com.nuvio.enhanced",
+                "developerName": "yesnt10",
+                "subtitle": "Polished media browsing",
+                "localizedDescription": "A community-maintained build of NuvioMobile with focus on premium UX edits.",
+                "iconURL": "https://raw.githubusercontent.com/yesnt10/NuvioMobile-Enhanced/enhanced/composeApp/src/commonMain/composeResources/drawable/ic_launcher.png",
+                "tintColor": "#007AFF",
+                "category": "entertainment",
+                "version": "$VERSION",
+                "downloadURL": "$URL",
+                "versions": [
+                  {
+                    "version": "$VERSION",
+                    "date": "$DATE",
+                    "downloadURL": "$URL",
+                    "size": ${SIZE:-0},
+                    "localizedDescription": "Automatically updated to version $VERSION"
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
+      - name: Commit changes and push back to repo
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git add apps.json
+          git diff-index --quiet HEAD || (git commit -m "Auto-synced to latest Nuvio build" && git push)
