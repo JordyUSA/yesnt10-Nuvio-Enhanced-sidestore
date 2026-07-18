@@ -11,3 +11,7 @@ Prefer to copy the link instead? Paste this into SideStore under **Browse > Sour
 ```
 https://raw.githubusercontent.com/JordyUSA/yesnt10-Nuvio-Enhanced-sidestore/main/apps.json
 ```
+
+### 🙏 Credits
+
+This source auto-tracks the app built by [**yesnt10**](https://github.com/yesnt10), maintainer of [NuvioMobile-Enhanced](https://github.com/yesnt10/NuvioMobile-Enhanced). All credit for the app itself goes to them — this repo just automates pulling their releases into a SideStore-compatible source.
