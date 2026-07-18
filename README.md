@@ -1,2 +1,13 @@
 # yesnt10-Nuvio-Enhanced-sidestore
 easily get update for nuvio enhanced in sidestore
+### 📲 Add to SideStore
+
+[![Add to SideStore](https://img.shields.io/badge/Add_to-SideStore-007AFF?style=for-the-badge&logo=apple&logoColor=white)](sidestore://source?url=https://raw.githubusercontent.com/JordyUSA/yesnt10-Nuvio-Enhanced-sidestore/main/apps.json)
+
+> Tapping this on your iPhone opens SideStore and prompts you to add the source. **SideStore must already be installed** — the link will fail if it isn't.
+
+Prefer to copy the link instead? Paste this into SideStore under **Browse > Sources > Add Source**:
+
+```
+https://raw.githubusercontent.com/JordyUSA/yesnt10-Nuvio-Enhanced-sidestore/main/apps.json
+```
